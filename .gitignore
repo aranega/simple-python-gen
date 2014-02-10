@@ -4,3 +4,15 @@
 *.jar
 *.war
 *.ear
+
+# Java Compil #
+target/
+
+# Emacs Files #
+*~
+
+# Eclipse Files #
+.classpath
+.project
+.settings/
+.metadata
