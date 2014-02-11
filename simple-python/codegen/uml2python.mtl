@@ -8,8 +8,9 @@
 [if (not m.ownedComment->isEmpty())]
 """
 [m.ownedComment.genComment(' ')/]
-"""[/if]
+"""
 
+[/if]
 [if (not m.allOwnedElements()->filter(TypedElement)->select(type <> null and type.name <> null and type.name = 'Date')->isEmpty())]
 from datetime import datetime
 
