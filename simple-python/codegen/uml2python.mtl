@@ -10,15 +10,21 @@
 [m.ownedComment.genComment(' ')/]
 """[/if]
 
-[for (e : Element | m.ownedElement->select(oclIsKindOf(Enumeration)))]
+[for (e : Element | m.ownedElement->filter(Enumeration))]
 [e.gen()/]
 [/for]
-[for (e : Element | m.ownedElement->filter(Interface)->select(generalization->isEmpty()))]
+
+[let nonInherit : Set(Classifier) = 
+	m.ownedElement->filter(Classifier)->select(getRelationships()->exists(oclIsKindOf(Generalization) or oclIsKindOf(InterfaceRealization)))]
+[for (e : Element | nonInherit)]
 [e.gen()/]
 [/for]
-[for (e : Element | m.ownedElement->filter(Interface)->select(not generalization->isEmpty()))]
+[for (e : Element | m.ownedElement->filter(Classifier)->select(c | nonInherit->excludes(c)))]
 [e.gen()/]
 [/for]
+[/let]
+
+[comment]
 [let nonInheritClasses : Set(Class) = m.ownedElement->filter(Class)->select(generalization->isEmpty() and interfaceRealization->isEmpty())]
 [for (e : Element | nonInheritClasses)]
 [e.gen()/]
@@ -27,6 +33,7 @@
 [e.gen()/]
 [/for]
 [/let]
+[/comment]
 
 # [protected ('-> functions/methods for ' + m.name + ' package')]
 
