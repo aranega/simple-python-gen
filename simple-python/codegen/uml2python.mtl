@@ -10,16 +10,11 @@
 [m.ownedComment.genComment(' ')/]
 """[/if]
 
-[for (e : Enumeration | m.ownedElement->filter(Enumeration))]
-[e.genClassif()/]
-[/for]
-
 [let nonInherit : Set(Classifier) = 
 	m.ownedElement->
 		filter(Classifier)->
 			select(generalization->isEmpty())->reject(oclIsKindOf(Class) and not oclAsType(Class).interfaceRealization->isEmpty())]
-[nonInherit->sep('\n *')/]
-[for (e : Classifier | nonInherit->reject(oclIsKindOf(Enumeration)))]
+[for (e : Classifier | nonInherit->sortedBy(oclIsKindOf(Enumeration)))]
 [e.genClassif()/]
 [/for]
 [for (e : Classifier | m.ownedElement->filter(Classifier)->select(c | nonInherit->excludes(c))->reject(oclIsKindOf(Enumeration)))]
@@ -37,7 +32,6 @@
 [template public genClassif(c : Class)]
 [let inherited : Bag(Classifier) = c.superClass->union(c.interfaceRealization.contract)]
 class [c.name/]([if (not inherited->isEmpty())][for (cl : Classifier | inherited) separator(', ')][cl.name/][/for][else]object[/if]):
-	[c.ownedElement->sep('\n')/]
 	[if (not c.ownedComment->isEmpty())]
 	"""
 	[c.ownedComment.genComment(' ')/]
@@ -70,7 +64,6 @@ class [c.name/]([if (not inherited->isEmpty())][for (cl : Classifier | inherited
 [template public genClassif(i : Interface)]
 [let inherited : Bag(Classifier) = i.generalization.general]
 class [i.name/]([if (not inherited->isEmpty())][for (cl : Classifier | inherited) separator(', ')][cl.name/][/for][else]object[/if]):
-	[i.ownedElement->sep('\n')/]
 	[if (not i.ownedComment->isEmpty())]
 	"""
 	[i.ownedComment.genComment(' ')/]
