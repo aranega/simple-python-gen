@@ -52,6 +52,9 @@ class [c.name/]([if (not c.superClass->isEmpty())][for (c : Classifier | self.su
 	[if (not c.ownedComment->isEmpty())]
 	"""
 	[c.ownedComment.genComment(' ')/]
+	Ancestors: 
+	[c.ancestors()->sep('\n')/]
+	Parents: [c.allParents()->sep('\n')/]
 	"""
 	[/if]
 	[if (not c.ownedAttribute->isEmpty())]
