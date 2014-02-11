@@ -79,6 +79,38 @@ class [c.name/]([if (not inherited->isEmpty())][for (cl : Classifier | inherited
 
 [/template]
 
+[template public gen(i : Interface)]
+[let inherited : Bag(Classifier) = i.generalization.general]
+class [i.name/]([if (not inherited->isEmpty())][for (cl : Classifier | inherited) separator(', ')][cl.name/][/for][else]object[/if]):
+	[if (not i.ownedComment->isEmpty())]
+	"""
+	[i.ownedComment.genComment(' ')/]
+	"""
+	[/if]
+	[if (not i.ownedAttribute->isEmpty())]
+	def __init__(self):
+		[i.ownedAttribute.gen()/]
+	[else]
+	pass
+	[/if]
+	# [protected ('-> properties/constructors for ' + i.name + ' class(interface)')]
+
+	# [/protected]
+	[if (not i.nestedClassifier->isEmpty())]
+	[i.nestedClassifier.gen()/]
+	[/if]
+	[if (not i.ownedOperation->isEmpty())]
+		[for (ops : Operation | i.ownedOperation)]
+	[ops.gen()/]
+		[/for]
+	[/if]
+	# [protected ('-> methods for ' + i.name + ' class(interface)')]
+
+	# [/protected]
+[/let]
+
+[/template]
+
 [template public gen(p : Property)]
 [if (not p.ownedComment->isEmpty())]
 [p.ownedComment.genComment('#')/]
