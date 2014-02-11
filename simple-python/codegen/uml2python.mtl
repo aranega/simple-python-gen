@@ -1,0 +1,26 @@
+[comment encoding = UTF-8 /]
+[module uml2python('http://www.eclipse.org/uml2/4.0.0/UML')]
+
+
+[template public generate(m : Package)]
+[comment @main/]
+[file (m.name.concat('.py'), false, 'UTF-8')]
+[if (not m.ownedComment->isEmpty())]
+"""
+[m.ownedComment.genComment(' ')/]
+"""[/if]
+
+# [protected ('other functions/methods for ' + m.name + ' package')]
+
+# [/protected]
+[/file]
+[/template]
+
+[template public genComment(c : Comment, prefix : String)]
+[prefix/][c.genBody(prefix).replaceAll('\n','\n' + prefix + ' ')/]
+
+[/template]
+
+[template public genBody(c : Comment, prefix : String)]
+[c._body/][if (not c.ownedComment->isEmpty())]['\n'/][prefix/] [c.ownedComment.genBody(prefix)->sep('\n ' + prefix)/][/if]
+[/template]
