@@ -6,12 +6,13 @@
 *.war
 *.ear
 
-# Java Compil #
+# Java/Acceleo Compil #
 target/
 bin/
 META-INF/
 *.acceleo
 *.properties
+*.java.lost
 
 # Emacs Files #
 *~
