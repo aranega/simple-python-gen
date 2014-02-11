@@ -10,30 +10,23 @@
 [m.ownedComment.genComment(' ')/]
 """[/if]
 
-[for (e : Element | m.ownedElement->filter(Enumeration))]
-[e.gen()/]
+[for (e : Enumeration | m.ownedElement->filter(Enumeration))]
+[e.genClassif()/]
 [/for]
 
 [let nonInherit : Set(Classifier) = 
-	m.ownedElement->filter(Classifier)->select(getRelationships()->exists(oclIsKindOf(Generalization) or oclIsKindOf(InterfaceRealization)))]
-[for (e : Element | nonInherit)]
-[e.gen()/]
+	m.ownedElement->
+		filter(Classifier)->
+			select(
+				getRelationships()->forAll(not oclIsKindOf(Generalization) and not oclIsKindOf(InterfaceRealization)
+				and not oclIsKindOf(Enumeration)))]
+[for (e : Classifier | nonInherit)]
+[e.genClassif()/]
 [/for]
-[for (e : Element | m.ownedElement->filter(Classifier)->select(c | nonInherit->excludes(c)))]
-[e.gen()/]
-[/for]
-[/let]
-
-[comment]
-[let nonInheritClasses : Set(Class) = m.ownedElement->filter(Class)->select(generalization->isEmpty() and interfaceRealization->isEmpty())]
-[for (e : Element | nonInheritClasses)]
-[e.gen()/]
-[/for]
-[for (e : Element | m.ownedElement->filter(Class)->select(c | nonInheritClasses->excludes(c)))]
-[e.gen()/]
+[for (e : Classifier | m.ownedElement->filter(Classifier)->select(c | nonInherit->excludes(c)))]
+[e.genClassif()/]
 [/for]
 [/let]
-[/comment]
 
 # [protected ('-> functions/methods for ' + m.name + ' package')]
 
@@ -41,20 +34,8 @@
 [/file]
 [/template]
 
-[template public gen(e : Enumeration)]
-class [e.name/]:
-	[if (not e.ownedComment->isEmpty())]
-	"""
-	[e.ownedComment.genComment(' ')/]
-	"""
-	[/if]
-	[if (not e.ownedLiteral->isEmpty())]
-	[for (lit : EnumerationLiteral | e.ownedLiteral) separator(', ')][lit.name/][/for] = range([e.ownedLiteral->size()/])
-	[/if]
-[/template]
-
-[template public gen(e : Element)/]
-[template public gen(c : Class)]
+[template public genClassif(e : Classifier)/]
+[template public genClassif(c : Class)]
 [let inherited : Bag(Classifier) = c.superClass->union(c.interfaceRealization.contract)]
 class [c.name/]([if (not inherited->isEmpty())][for (cl : Classifier | inherited) separator(', ')][cl.name/][/for][else]object[/if]):
 	[if (not c.ownedComment->isEmpty())]
@@ -72,7 +53,7 @@ class [c.name/]([if (not inherited->isEmpty())][for (cl : Classifier | inherited
 
 	# [/protected]
 	[if (not c.nestedClassifier->isEmpty())]
-	[c.nestedClassifier.gen()/]
+	[c.nestedClassifier.genClassif()/]
 	[/if]
 	[if (not c.ownedOperation->isEmpty())]
 		[for (ops : Operation | c.ownedOperation)]
@@ -86,7 +67,7 @@ class [c.name/]([if (not inherited->isEmpty())][for (cl : Classifier | inherited
 
 [/template]
 
-[template public gen(i : Interface)]
+[template public genClassif(i : Interface)]
 [let inherited : Bag(Classifier) = i.generalization.general]
 class [i.name/]([if (not inherited->isEmpty())][for (cl : Classifier | inherited) separator(', ')][cl.name/][/for][else]object[/if]):
 	[if (not i.ownedComment->isEmpty())]
@@ -104,7 +85,7 @@ class [i.name/]([if (not inherited->isEmpty())][for (cl : Classifier | inherited
 
 	# [/protected]
 	[if (not i.nestedClassifier->isEmpty())]
-	[i.nestedClassifier.gen()/]
+	[i.nestedClassifier.genClassif()/]
 	[/if]
 	[if (not i.ownedOperation->isEmpty())]
 		[for (ops : Operation | i.ownedOperation)]
@@ -116,6 +97,18 @@ class [i.name/]([if (not inherited->isEmpty())][for (cl : Classifier | inherited
 	# [/protected]
 [/let]
 
+[/template]
+
+[template public genClassif(e : Enumeration)]
+class [e.name/]:
+	[if (not e.ownedComment->isEmpty())]
+	"""
+	[e.ownedComment.genComment(' ')/]
+	"""
+	[/if]
+	[if (not e.ownedLiteral->isEmpty())]
+	[for (lit : EnumerationLiteral | e.ownedLiteral) separator(', ')][lit.name/][/for] = range([e.ownedLiteral->size()/])
+	[/if]
 [/template]
 
 [template public gen(p : Property)]
