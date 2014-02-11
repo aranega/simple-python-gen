@@ -17,8 +17,7 @@
 [let nonInherit : Set(Classifier) = 
 	m.ownedElement->
 		filter(Classifier)->
-			reject(
-				ownedElement->exists(oclIsKindOf(Generalization) or oclIsKindOf(InterfaceRealization)))]
+			select(generalization->isEmpty())->reject(oclIsKindOf(Class) and not oclAsType(Class).interfaceRealization->isEmpty())]
 [nonInherit->sep('\n *')/]
 [for (e : Classifier | nonInherit->reject(oclIsKindOf(Enumeration)))]
 [e.genClassif()/]
