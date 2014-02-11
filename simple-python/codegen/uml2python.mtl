@@ -18,12 +18,11 @@
 	m.ownedElement->
 		filter(Classifier)->
 			select(
-				getRelationships()->forAll(not oclIsKindOf(Generalization) and not oclIsKindOf(InterfaceRealization)
-				and not oclIsKindOf(Enumeration)))]
-[for (e : Classifier | nonInherit)]
+				getRelationships()->forAll(not oclIsKindOf(Generalization) and not oclIsKindOf(InterfaceRealization)))]
+[for (e : Classifier | nonInherit->reject(oclIsKindOf(Enumeration)))]
 [e.genClassif()/]
 [/for]
-[for (e : Classifier | m.ownedElement->filter(Classifier)->select(c | nonInherit->excludes(c)))]
+[for (e : Classifier | m.ownedElement->filter(Classifier)->select(c | nonInherit->excludes(c))->reject(oclIsKindOf(Enumeration)))]
 [e.genClassif()/]
 [/for]
 [/let]
