@@ -19,6 +19,7 @@
 		filter(Classifier)->
 			select(
 				ownedElement->forAll(not oclIsKindOf(Generalization) and not oclIsKindOf(InterfaceRealization)))]
+[nonInherit->sep('\n')/]
 [for (e : Classifier | nonInherit->reject(oclIsKindOf(Enumeration)))]
 [e.genClassif()/]
 [/for]
