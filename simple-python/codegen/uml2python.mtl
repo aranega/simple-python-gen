@@ -9,6 +9,9 @@
 """
 [m.ownedComment.genComment(' ')/]
 """[/if]
+[for (e : Element | m.ownedElement->select(oclIsKindOf(Enumeration)))]
+[e.gen()/]
+[/for]
 
 [for (e : Element | m.ownedElement->select(oclIsKindOf(Class) and oclAsType(Class).superClass->isEmpty()))]
 [e.gen()/]
@@ -18,6 +21,18 @@
 
 # [/protected]
 [/file]
+[/template]
+
+[template public gen(e : Enumeration)]
+class [e.name/]:
+	[if (not e.ownedComment->isEmpty())]
+	"""
+	[e.ownedComment.genComment(' ')/]
+	"""
+	[/if]
+	[if (not e.ownedLiteral->isEmpty())]
+	[for (lit : EnumerationLiteral | e.ownedLiteral) separator(', ')][lit.name/][/for] = range([e.ownedLiteral->size()/])
+	[/if]
 [/template]
 
 [template public gen(e : Element)/]
@@ -52,7 +67,6 @@ class [c.name/]([if (not c.superClass->isEmpty())][for (c : Classifier | self.su
 	# [/protected]
 
 [/template]
-
 
 [template public genComment(c : Comment, prefix : String)]
 [prefix/][c.genBody(prefix).replaceAll('\n','\n' + prefix + ' ')/]
