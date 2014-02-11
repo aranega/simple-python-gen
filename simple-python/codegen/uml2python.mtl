@@ -2,6 +2,10 @@
 [module uml2python('http://www.eclipse.org/uml2/4.0.0/UML')]
 
 
+[comment]
+Main entry point. This main template MUST be named 'generate' and it must
+own the main annotation.
+[/comment]
 [template public generate(m : Package)]
 [comment @main/]
 [file (m.name.concat('.py'), false, 'UTF-8')]
@@ -11,10 +15,12 @@
 """
 
 [/if]
+[comment Dummy and very simple import management (misses the extern module imports) /]
 [if (not m.allOwnedElements()->filter(TypedElement)->select(type <> null and type.name <> null and type.name = 'Date')->isEmpty())]
 from datetime import datetime
 
 [/if]
+[comment Generate code for classes/interfaces /]
 [let nonInherit : Set(Classifier) = 
 	m.ownedElement->
 		filter(Classifier)->
@@ -35,6 +41,9 @@ from datetime import datetime
 [/file]
 [/template]
 
+[comment]
+These template are used to generate 'Classifier' code, i.e., Class, Interface and Enumeration.
+[/comment]
 [template public genClassif(e : Classifier)/]
 [template public genClassif(c : Class)]
 [let inherited : Bag(Classifier) = c.superClass->union(c.interfaceRealization.contract)]
@@ -100,6 +109,10 @@ class [i.name/]([if (not inherited->isEmpty())][for (cl : Classifier | inherited
 [/let]
 [/template]
 
+[comment]
+This template represents the choice we made about UML Enumeration
+compilation to python code.
+[/comment]
 [template public genClassif(e : Enumeration)]
 class [e.name/]:
 	[if (not e.ownedComment->isEmpty())]
