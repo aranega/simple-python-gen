@@ -10,7 +10,7 @@
 [m.ownedComment.genComment(' ')/]
 """[/if]
 
-[if (m.allOwnedElements()->filter(TypedElement)->select(type <> null and type.name <> null and type.name = 'Date')->isEmpty())]
+[if (not m.allOwnedElements()->filter(TypedElement)->select(type <> null and type.name <> null and type.name = 'Date')->isEmpty())]
 from datetime import datetime
 
 [/if]
