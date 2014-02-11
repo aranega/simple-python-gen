@@ -60,7 +60,6 @@ class [c.name/]([if (not inherited->isEmpty())][for (cl : Classifier | inherited
 
 	# [/protected]
 [/let]
-
 [/template]
 
 [template public genClassif(i : Interface)]
@@ -92,7 +91,6 @@ class [i.name/]([if (not inherited->isEmpty())][for (cl : Classifier | inherited
 
 	# [/protected]
 [/let]
-
 [/template]
 
 [template public genClassif(e : Enumeration)]
