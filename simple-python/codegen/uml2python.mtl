@@ -10,6 +10,7 @@
 [m.ownedComment.genComment(' ')/]
 """[/if]
 
+[m.eAllContents(TypedElement)->select(type.name = 'Date')/]
 [if (not m.eAllContents(TypedElement)->select(type.name = 'Date')->isEmpty())]
 from datetime import datetime
 [/if]
