@@ -40,12 +40,13 @@ class [c.name/]([if (not inherited->isEmpty())][for (cl : Classifier | inherited
 	[c.ownedComment.genComment(' ')/]
 	"""
 	[/if]
-	[if (not c.ownedAttribute->isEmpty())]
+	[let navig : Bag(Property) = c.getAssociations().navigableOwnedEnd->select(type <> c)]
+	[if (not c.ownedAttribute->union(navig)->isEmpty())]
 	def __init__(self):
-		[c.ownedAttribute.gen()/]
+		[c.ownedAttribute->union(navig).gen()/]
 	[else]
 	pass
-	[/if]
+	[/if][/let]
 	# [protected ('-> properties/constructors for ' + c.name + ' class')]
 
 	# [/protected]
@@ -71,12 +72,13 @@ class [i.name/]([if (not inherited->isEmpty())][for (cl : Classifier | inherited
 	[i.ownedComment.genComment(' ')/]
 	"""
 	[/if]
-	[if (not i.ownedAttribute->isEmpty())]
+	[let navig : Bag(Property) = i.getAssociations().navigableOwnedEnd->select(type <> i)]
+	[if (not i.ownedAttribute->union(navig)->isEmpty())]
 	def __init__(self):
-		[i.ownedAttribute.gen()/]
+		[i.ownedAttribute->union(navig).gen()/]
 	[else]
 	pass
-	[/if]
+	[/if][/let]
 	# [protected ('-> properties/constructors for ' + i.name + ' class(interface)')]
 
 	# [/protected]
