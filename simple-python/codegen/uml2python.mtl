@@ -10,11 +10,49 @@
 [m.ownedComment.genComment(' ')/]
 """[/if]
 
-# [protected ('other functions/methods for ' + m.name + ' package')]
+[for (e : Element | m.ownedElement->select(oclIsKindOf(Class) and oclAsType(Class).superClass->isEmpty()))]
+[e.gen()/]
+[/for]
+
+# [protected ('user functions/methods for ' + m.name + ' package')]
 
 # [/protected]
 [/file]
 [/template]
+
+[template public gen(e : Element)/]
+[template public gen(c : Class)]
+class [c.name/]([if (not c.superClass->isEmpty())][for (c : Classifier | self.superClass) separator(', ')][c.name/][/for][else]object[/if]):
+	[if (not c.ownedComment->isEmpty())]
+	"""
+	[c.ownedComment.genComment(' ')/]
+	"""
+	[/if]
+	[if (not c.ownedAttribute->isEmpty())]
+	def __init__(self):
+		[c.ownedAttribute.gen()/]
+	[else]
+	pass
+	[/if]
+	# [protected ('user properties/constructors for ' + c.name + ' class')]
+
+	# [/protected]
+	[if (not c.nestedClassifier->isEmpty())]
+	[c.nestedClassifier.gen()/]
+	[/if]
+	[comment]
+	[if (not c.ownedOperation->isEmpty())]
+		[for (ops : Operation | c.ownedOperation)]
+	[ops.gen()/]
+		[/for]
+	[/if]
+	[/comment]
+	# [protected ('user methods for ' + c.name + ' class')]
+
+	# [/protected]
+
+[/template]
+
 
 [template public genComment(c : Comment, prefix : String)]
 [prefix/][c.genBody(prefix).replaceAll('\n','\n' + prefix + ' ')/]
