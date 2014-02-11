@@ -10,7 +10,8 @@
 [m.ownedComment.genComment(' ')/]
 """[/if]
 
-[m.allOwnedElements()->select(oclIsKindOf(TypedElement) and oclAsType(TypedElement).type.name = 'Date')/]
+[m.allOwnedElements()/]
+[m.allOwnedElements()->select(oclIsKindOf(TypedElement))/]
 [if (m.allOwnedElements()->select(oclIsKindOf(TypedElement) and oclAsType(TypedElement).type.name = 'Date')->isEmpty())]
 from datetime import datetime
 [/if]
