@@ -10,6 +10,9 @@
 [m.ownedComment.genComment(' ')/]
 """[/if]
 
+[if (m.allOwnedElements()->filter(TypedElement).type->exists(name = 'Date'))]
+from datetime import datetime
+[/if]
 [let nonInherit : Set(Classifier) = 
 	m.ownedElement->
 		filter(Classifier)->
