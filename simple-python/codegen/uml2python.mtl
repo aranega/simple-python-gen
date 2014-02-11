@@ -48,7 +48,8 @@ class [e.name/]:
 
 [template public gen(e : Element)/]
 [template public gen(c : Class)]
-class [c.name/]([if (not c.superClass->isEmpty())][for (c : Classifier | self.superClass) separator(', ')][c.name/][/for][else]object[/if]):
+[let inherited : Bag(Classifier) = c.superClass->union(c.generalization.general)]
+class [c.name/]([if (not inherited->isEmpty())][for (cl : Classifier | inherited) separator(', ')][cl.name/][/for][else]object[/if]):
 	[if (not c.ownedComment->isEmpty())]
 	"""
 	[c.ownedComment.genComment(' ')/]
@@ -56,10 +57,6 @@ class [c.name/]([if (not c.superClass->isEmpty())][for (c : Classifier | self.su
 	[c.allParents()->sep('\n')/]
 	Relationships:
 	[c.getRelationships()->sep('\n')/]
-	Inherited members:
-	[c.getInheritedMembers()->sep('\n')/]
-	General:
-	[c.general->sep('\n')/]
 	"""
 	[/if]
 	[if (not c.ownedAttribute->isEmpty())]
@@ -82,6 +79,7 @@ class [c.name/]([if (not c.superClass->isEmpty())][for (c : Classifier | self.su
 	# [protected ('-> methods for ' + c.name + ' class')]
 
 	# [/protected]
+[/let]
 
 [/template]
 
