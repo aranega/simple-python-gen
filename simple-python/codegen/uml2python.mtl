@@ -3,8 +3,8 @@
 
 
 [comment]
-Main entry point. This main template MUST be named 'generate' and it must
-own the main annotation.
+ Main entry point. This main template MUST be named 'generate' and it must
+ own the main annotation.
 [/comment]
 [template public generate(m : Package)]
 [comment @main/]
@@ -42,7 +42,7 @@ from datetime import datetime
 [/template]
 
 [comment]
-These template are used to generate 'Classifier' code, i.e., Class, Interface and Enumeration.
+ These templates are used to generate 'Classifier' code, i.e., Class, Interface and Enumeration.
 [/comment]
 [template public genClassif(e : Classifier)/]
 [template public genClassif(c : Class)]
@@ -110,8 +110,8 @@ class [i.name/]([if (not inherited->isEmpty())][for (cl : Classifier | inherited
 [/template]
 
 [comment]
-This template represents the choice we made about UML Enumeration
-compilation to python code.
+ This template represents the choice we made about UML Enumeration
+ compilation to python code.
 [/comment]
 [template public genClassif(e : Enumeration)]
 class [e.name/]:
@@ -144,10 +144,13 @@ self.[if (p.visibility = VisibilityKind::_private)]__[/if][p.name/] = [p.genValu
 	[o.bodyOperation()/]	
 [/template]
 
+[comment]
+ Generate an operation header. If the operation visibility is set to
+ private, '__' prefixes the operation name.
+[/comment]
 [template public header(o : Operation)]
 def [if (o.visibility = VisibilityKind::_private)]__[/if][o.name/](self[for (param : Parameter | o.ownedParameter->excluding(o.getReturnResult())) before (', ') separator(', ')][param.name/][/for]):
 [/template]
-
 
 [template public bodyOperation(o : Operation)]
 # [protected ('protected zone for ' + o.name + ' function body')]
@@ -165,7 +168,9 @@ return [o.getReturnResult().genValue()/]
 [/if]
 [/template]
 
-
+[comment]
+ Generate single values for methods and attributes initialization.
+[/comment]
 [template public genSingleValue(t : Type) ? (not t.oclIsUndefined()) post (trim())]
 [if (t.name = 'String')]""
 [elseif (t.name = 'UnlimitedNatural')]0L
