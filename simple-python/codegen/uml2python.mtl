@@ -110,6 +110,7 @@ class [e.name/]:
 [template public gen(p : Property)]
 [if (not p.ownedComment->isEmpty())]
 [p.ownedComment.genComment('#')/]
+
 [/if]
 self.[if (p.visibility = VisibilityKind::_private)]__[/if][p.name/] = [p.genValue()/]
 
@@ -168,7 +169,6 @@ return [o.getReturnResult().genValue()/]
 
 [template public genComment(c : Comment, prefix : String)]
 [prefix/][c.genBody(prefix).replaceAll('\n','\n' + prefix + ' ')/]
-
 [/template]
 
 [template public genBody(c : Comment, prefix : String)]
