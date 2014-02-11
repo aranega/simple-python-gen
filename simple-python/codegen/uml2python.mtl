@@ -14,11 +14,11 @@
 [e.gen()/]
 [/for]
 
-[for (e : Element | m.ownedElement->filter(Class)->select(superClass->isEmpty()))]
+[for (e : Element | m.ownedElement->filter(Classifier)->select(generalization->isEmpty()))]
 [e.gen()/]
 [/for]
 
-[for (e : Element | m.ownedElement->filter(Class)->select(superClass->isEmpty()))]
+[for (e : Element | m.ownedElement->filter(Classifier)->select(not generalization->isEmpty()))]
 [e.gen()/]
 [/for]
 
