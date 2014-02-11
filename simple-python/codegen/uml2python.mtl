@@ -10,7 +10,7 @@
 [m.ownedComment.genComment(' ')/]
 """[/if]
 
-[if (not m.allOwnedElements()->filter(TypedElement).type->select(name = 'Date')->isEmpty())]
+[if (not m.allOwnedElements()->filter(TypedElement)->select(type.name = 'Date')->isEmpty())]
 from datetime import datetime
 [/if]
 [let nonInherit : Set(Classifier) = 
