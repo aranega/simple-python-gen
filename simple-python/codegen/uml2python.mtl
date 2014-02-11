@@ -10,6 +10,7 @@
 [m.ownedComment.genComment(' ')/]
 """[/if]
 
+[m.allOwnedElements()->filter(TypedElement).type->sep('\n')/]
 [if (m.allOwnedElements()->filter(TypedElement).type->exists(name = 'Date'))]
 from datetime import datetime
 [/if]
