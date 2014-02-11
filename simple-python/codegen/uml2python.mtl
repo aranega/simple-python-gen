@@ -9,11 +9,16 @@
 """
 [m.ownedComment.genComment(' ')/]
 """[/if]
+
 [for (e : Element | m.ownedElement->select(oclIsKindOf(Enumeration)))]
 [e.gen()/]
 [/for]
 
-[for (e : Element | m.ownedElement->select(oclIsKindOf(Class) and oclAsType(Class).superClass->isEmpty()))]
+[for (e : Element | m.ownedElement->filter(Class)->select(superClass->isEmpty()))]
+[e.gen()/]
+[/for]
+
+[for (e : Element | m.ownedElement->filter(Class)->select(superClass->isEmpty()))]
 [e.gen()/]
 [/for]
 
