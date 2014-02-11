@@ -14,7 +14,7 @@
 [e.gen()/]
 [/for]
 
-# [protected ('user functions/methods for ' + m.name + ' package')]
+# [protected ('-> functions/methods for ' + m.name + ' package')]
 
 # [/protected]
 [/file]
@@ -34,7 +34,7 @@ class [c.name/]([if (not c.superClass->isEmpty())][for (c : Classifier | self.su
 	[else]
 	pass
 	[/if]
-	# [protected ('user properties/constructors for ' + c.name + ' class')]
+	# [protected ('-> properties/constructors for ' + c.name + ' class')]
 
 	# [/protected]
 	[if (not c.nestedClassifier->isEmpty())]
@@ -47,7 +47,7 @@ class [c.name/]([if (not c.superClass->isEmpty())][for (c : Classifier | self.su
 		[/for]
 	[/if]
 	[/comment]
-	# [protected ('user methods for ' + c.name + ' class')]
+	# [protected ('-> methods for ' + c.name + ' class')]
 
 	# [/protected]
 
