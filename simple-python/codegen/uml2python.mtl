@@ -10,10 +10,9 @@
 [m.ownedComment.genComment(' ')/]
 """[/if]
 
-[m.allOwnedElements()/]
-[m.allOwnedElements()->select(oclIsKindOf(TypedElement))/]
-[if (m.allOwnedElements()->select(oclIsKindOf(TypedElement) and oclAsType(TypedElement).type.name = 'Date')->isEmpty())]
+[if (m.allOwnedElements()->filter(TypedElement)->select(type <> null and type.name <> null and type.name = 'Date')->isEmpty())]
 from datetime import datetime
+
 [/if]
 [let nonInherit : Set(Classifier) = 
 	m.ownedElement->
