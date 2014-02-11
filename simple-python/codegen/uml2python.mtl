@@ -37,6 +37,7 @@
 [template public genClassif(c : Class)]
 [let inherited : Bag(Classifier) = c.superClass->union(c.interfaceRealization.contract)]
 class [c.name/]([if (not inherited->isEmpty())][for (cl : Classifier | inherited) separator(', ')][cl.name/][/for][else]object[/if]):
+	[c.getRelationships()->sep('\n')/]
 	[if (not c.ownedComment->isEmpty())]
 	"""
 	[c.ownedComment.genComment(' ')/]
@@ -69,6 +70,7 @@ class [c.name/]([if (not inherited->isEmpty())][for (cl : Classifier | inherited
 [template public genClassif(i : Interface)]
 [let inherited : Bag(Classifier) = i.generalization.general]
 class [i.name/]([if (not inherited->isEmpty())][for (cl : Classifier | inherited) separator(', ')][cl.name/][/for][else]object[/if]):
+	[i.getRelationships()->sep('\n')/]
 	[if (not i.ownedComment->isEmpty())]
 	"""
 	[i.ownedComment.genComment(' ')/]
