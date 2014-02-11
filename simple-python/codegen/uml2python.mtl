@@ -13,20 +13,16 @@
 [for (e : Element | m.ownedElement->select(oclIsKindOf(Enumeration)))]
 [e.gen()/]
 [/for]
-
 [for (e : Element | m.ownedElement->filter(Interface)->select(generalization->isEmpty()))]
 [e.gen()/]
 [/for]
-
 [for (e : Element | m.ownedElement->filter(Interface)->select(not generalization->isEmpty()))]
 [e.gen()/]
 [/for]
-
 [let nonInheritClasses : Set(Class) = m.ownedElement->filter(Class)->select(generalization->isEmpty() and interfaceRealization->isEmpty())]
 [for (e : Element | nonInheritClasses)]
 [e.gen()/]
 [/for]
-
 [for (e : Element | m.ownedElement->filter(Class)->select(c | nonInheritClasses->excludes(c)))]
 [e.gen()/]
 [/for]
@@ -70,13 +66,11 @@ class [c.name/]([if (not c.superClass->isEmpty())][for (c : Classifier | self.su
 	[if (not c.nestedClassifier->isEmpty())]
 	[c.nestedClassifier.gen()/]
 	[/if]
-	[comment]
 	[if (not c.ownedOperation->isEmpty())]
 		[for (ops : Operation | c.ownedOperation)]
 	[ops.gen()/]
 		[/for]
 	[/if]
-	[/comment]
 	# [protected ('-> methods for ' + c.name + ' class')]
 
 	# [/protected]
