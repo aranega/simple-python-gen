@@ -53,10 +53,6 @@ class [c.name/]([if (not inherited->isEmpty())][for (cl : Classifier | inherited
 	[if (not c.ownedComment->isEmpty())]
 	"""
 	[c.ownedComment.genComment(' ')/]
-	Parents: 
-	[c.allParents()->sep('\n')/]
-	Relationships:
-	[c.getRelationships()->sep('\n')/]
 	"""
 	[/if]
 	[if (not c.ownedAttribute->isEmpty())]
