@@ -1,4 +1,5 @@
 <generator>
   <name>simple-python</name>
+  <set-input name="input/SimpleModel.uml"/>
   <m2t name="uml2python.mtl"/>
 </generator>
