@@ -1,5 +1,5 @@
 <generator>
   <name>simple-python</name>
-  <setinput name="gen://input/SimpleModel.uml"/>
+  <setinput name="outrepo://SimpleModel.uml"/>
   <m2t name="uml2python.mtl"/>
 </generator>
