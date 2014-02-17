@@ -9,7 +9,7 @@
 [template public generate(m : Package)]
 [comment @main/]
 [file (m.name.concat('.py'), false, 'UTF-8')]
-[if (not m.ownedCmment->isEmpty())]
+[if (not m.ownedComment->isEmpty())]
 """
 [m.ownedComment.genComment(' ')/]
 """
