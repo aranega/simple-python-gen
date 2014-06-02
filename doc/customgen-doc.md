@@ -227,7 +227,7 @@ You access to the `Custom Generator` management console.
 From this managment console, you can easily add/edit/save/delete your custom generator. When you add a generator, here are the field you can fill:
 
 * `Generator Name`: The name you want to use for you generator inside GenMyModel (__required__),
-* `Github URL`: Your https github custom generator URL (__required__),
+* `Github URL`: Your https github custom generator URL (__required__ and __do not forget the `.git` at the URL end__, example `https://github.com/aranega/simple-python-gen.git`),
 * `Github branch`: The git branch owning the generator (you can manage, *e.g*, a stable and an unstable version of your generator).
 
 If your custom generator is on a private github repository, you can insert your username and password (is encrypted by GenMyModel).
