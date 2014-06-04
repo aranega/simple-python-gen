@@ -21,7 +21,8 @@ a language used to handle and produce text from models.
 
 This section is organized as follow. The first part of this section deals with code generator organization (project setup, 
 required directories...). The second one present requirements for the model to text transformations. The third part of this 
-section give details about the main piece of the project, the `generator.xml` file. The last part presents you the errors
+section give details about the main piece of the project, the `generator.xml` file, then, the fourth part exmplains how to register your custom generator into GenMyModel. 
+Finally, last part of this article presents you the errors
 you could face while compiling/executing your generator.
 
 ### Code Generator Organization
@@ -58,7 +59,7 @@ Thus a generic code generator could look like this:
 Here is an example of a [simple python generator](https://github.com/aranega/simple-python-gen) 
 organization:
 
-    https://github.com/aranega/simple-python-gen
+    https://github.com/aranega/simple-python-gen.git
     |-- simple-python
     |	|-- codegen
     |	|   +-- uml2python.mtl
