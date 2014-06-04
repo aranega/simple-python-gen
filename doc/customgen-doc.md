@@ -66,6 +66,8 @@ organization:
     |	+-- generator.xml
     +-- README.md  
 
+You can find a custom generator blank template at (https://github.com/aranega/customgen-template).
+
 ### From Model to Text
 MTL language is a powerful language designed to generate code from any kind of models. It allows you to filter elements,
 navigate from elements to others and produce text/code. MTL files are often divided in three main parts:
