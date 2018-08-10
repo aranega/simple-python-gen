@@ -8,45 +8,102 @@
 [/comment]
 [template public generate(m : Package)]
 [comment @main/]
-[file (m.name.concat('.py'), false, 'UTF-8')]
+[file (m.qualifiedName.replaceAll('::', '/') + '/__init__.py', false, 'UTF-8')]
 [if (not m.ownedComment->isEmpty())]
 """
 [m.ownedComment.genComment(' ')/]
 """
 
 [/if]
+[let nonPrimitiveClasses : Set(Classifier) = m.packagedElement->union(m.importedMember)->filter(Classifier)->reject(oclIsKindOf(Association))->reject(oclIsKindOf(PrimitiveType))]
+[let nonPrimitiveInstances : Set(InstanceSpecification) = m.packagedElement->union(m.importedMember)->filter(InstanceSpecification)]
+[for (e : NamedElement | nonPrimitiveClasses->union(nonPrimitiveInstances)) before('__all__ = [') separator(', ') after(']')]
+"[e.name/]"[/for]
+
+[comment]
+[for (e : Classifier | nonPrimitiveClasses)]
+from [e.qualifiedName.replaceAll('::', '.')/] import [e.name/]
+[/for]
+[for (instance : InstanceSpecification | nonPrimitiveInstances)]
+import [instance.classifier.qualifiedName.replaceAll('::', '.')/]
+[/for]
+[/comment]
+# [protected ('-> additional imports for ' + m.name + ' package')]
+
+# [/protected]
+
+[for (instance : InstanceSpecification | nonPrimitiveInstances)]
+[instance.name/] = [instance.classifier.qualifiedName.replaceAll('::', '.')/]()
+[/for]
+[/let]
+[/let]
+
+[/file]
+[m.genPackageContent()/]
+[/template]
+
+[**
+ * This template generates a package content (one class per file)
+ */]
+[template public genPackageContent(m : Package)]
+[for (e : Classifier | m.ownedElement->filter(Classifier)->reject(oclIsKindOf(Association)))]
+[file(e.qualifiedName.replaceAll('::', '/') + '.py', false, 'UTF-8')]
 [comment Dummy and very simple import management (misses the extern module imports) /]
 [if (not m.allOwnedElements()->filter(TypedElement)->select(type <> null and type.name <> null and type.name = 'Date')->isEmpty())]
 from datetime import datetime
 
 [/if]
 [comment Generate code for classes/interfaces /]
-[let nonInherit : Set(Classifier) = 
-	m.ownedElement->
-		filter(Classifier)->
-			select(generalization->isEmpty())->reject(oclIsKindOf(Class) and not oclAsType(Class).interfaceRealization->isEmpty())]
-[for (e : Classifier | nonInherit->sortedBy(not oclIsKindOf(Enumeration)))]
 [e.genClassif()/]
-[/for]
-[for (e : Classifier | m.ownedElement->filter(Classifier)
-						->select(c | nonInherit->excludes(c))
-						->sortedBy(getAllUsedInterfaces()->union(getGenerals())->size()))]
-[e.genClassif()/]
-[/for]
-[/let]
-
-# [protected ('-> functions/methods for ' + m.name + ' package')]
-
-# [/protected]
 [/file]
+[/for]
 [/template]
 
 [comment]
  These templates are used to generate 'Classifier' code, i.e., Class, Interface and Enumeration.
 [/comment]
 [template public genClassif(e : Classifier)/]
+[template public genClassif(d : DataType)]
+[let inherited : Set(Classifier) = d.parents()]
+[for (inheritedNonPrimitiveClass : Classifier | inherited->reject(oclIsKindOf(PrimitiveType)))]
+from [inheritedNonPrimitiveClass.qualifiedName.replaceAll('::', '.')/] import [inheritedNonPrimitiveClass.name/]
+[/for]
+[let nonPrimitiveAttributes : OrderedSet(Property) = d.attribute->reject(oclIsKindOf(PrimitiveType))->reject(type.qualifiedName = d.qualifiedName)]
+[for (attribute : Property | nonPrimitiveAttributes)]from [attribute.type.qualifiedName.replaceAll('::', '.')/] import [attribute.type.name/]
+[/for][/let]
+# [protected ('-> additional imports for ' + d.name + ' datatype')]
+
+# [/protected]
+class [d.name/]([if (not inherited->isEmpty())][for (cl : Classifier | inherited) separator(', ')][cl.name/][/for][else]object[/if]):
+[/let]
+	[if (not d.ownedComment->isEmpty())]
+	"""
+	[d.ownedComment.genComment(' ')/]
+	"""
+	[/if]
+	def __init__(self):
+		super().__init__()
+		[d.ownedAttribute.gen()/]
+		# [protected ('-> additional implementation details for ' + d.name + ' datatype constructor')]
+
+		# [/protected]
+	# [protected ('-> properties/constructors for ' + d.name + ' class')]
+	
+	# [/protected]
+[/template]
 [template public genClassif(c : Class)]
 [let inherited : Bag(Classifier) = c.superClass->union(c.interfaceRealization.contract)]
+[for (inheritedNonPrimitiveClass : Classifier | inherited->reject(oclIsKindOf(PrimitiveType)))]
+from [inheritedNonPrimitiveClass.qualifiedName.replaceAll('::', '.')/] import [inheritedNonPrimitiveClass.name/]
+[/for]
+[let nonPrimitiveAttributes : OrderedSet(Property) = c.attribute->reject(oclIsKindOf(PrimitiveType))->reject(type.qualifiedName = c.qualifiedName)]
+[for (attribute : Property | nonPrimitiveAttributes)]from [attribute.type.qualifiedName.replaceAll('::', '.')/] import [attribute.type.name/]
+[/for][/let]
+# [protected ('-> additional imports for ' + c.name + ' class')]
+
+# [/protected]
+
+
 class [c.name/]([if (not inherited->isEmpty())][for (cl : Classifier | inherited) separator(', ')][cl.name/][/for][else]object[/if]):
 	[if (not c.ownedComment->isEmpty())]
 	"""
@@ -54,20 +111,24 @@ class [c.name/]([if (not inherited->isEmpty())][for (cl : Classifier | inherited
 	"""
 	[/if]
 	[let navig : Bag(Property) = c.getAssociations().navigableOwnedEnd->select(type <> c)]
-	[if (not c.ownedAttribute->union(navig)->isEmpty())]
-	def __init__(self):
-		[c.ownedAttribute->union(navig).gen()/]
+	[if (not c.ownedOperation->select(m | m.name = c.name)->isEmpty())]
+	[c.ownedOperation->select(m | m.name = c.name)->first().gen()/]
 	[else]
-	pass
+	def __init__(self):
+		super().__init__()
+[if (not c.ownedAttribute->union(navig)->isEmpty())]		[c.ownedAttribute->union(navig).gen()/][/if]
+		# [protected ('-> additional implementation details for ' + c.name + ' class constructor')]
+
+		# [/protected]
 	[/if][/let]
-	# [protected ('-> properties/constructors for ' + c.name + ' class')]
+	# [protected ('-> properties for ' + c.name + ' class')]
 
 	# [/protected]
 	[if (not c.nestedClassifier->isEmpty())]
 	[c.nestedClassifier.genClassif()/]
 	[/if]
 	[if (not c.ownedOperation->isEmpty())]
-		[for (ops : Operation | c.ownedOperation)]
+		[for (ops : Operation | c.ownedOperation->reject(op | op.name = c.name))]
 	[ops.gen()/]
 		[/for]
 	[/if]
@@ -79,6 +140,12 @@ class [c.name/]([if (not inherited->isEmpty())][for (cl : Classifier | inherited
 
 [template public genClassif(i : Interface)]
 [let inherited : Bag(Classifier) = i.generalization.general]
+[for (inheritedNonPrimitiveClass : Classifier | inherited->reject(oclIsKindOf(PrimitiveType)))]
+from [inheritedNonPrimitiveClass.qualifiedName.replaceAll('::', '.')/] import [inheritedNonPrimitiveClass.name/]
+[/for]
+# [protected ('-> additional imports for ' + i.name + ' interface')]
+
+# [/protected]
 class [i.name/]([if (not inherited->isEmpty())][for (cl : Classifier | inherited) separator(', ')][cl.name/][/for][else]object[/if]):
 	[if (not i.ownedComment->isEmpty())]
 	"""
@@ -86,20 +153,21 @@ class [i.name/]([if (not inherited->isEmpty())][for (cl : Classifier | inherited
 	"""
 	[/if]
 	[let navig : Bag(Property) = i.getAssociations().navigableOwnedEnd->select(type <> i)]
-	[if (not i.ownedAttribute->union(navig)->isEmpty())]
 	def __init__(self):
-		[i.ownedAttribute->union(navig).gen()/]
-	[else]
-	pass
-	[/if][/let]
-	# [protected ('-> properties/constructors for ' + i.name + ' class(interface)')]
+		super().__init__()
+		[if (not i.ownedAttribute->union(navig)->isEmpty())][i.ownedAttribute->union(navig).gen()/][/if]
+		# [protected ('-> additional implementation details for ' + i.name + ' interface constructor')]
+
+		# [/protected]
+	[/let]
+	# [protected ('-> properties for ' + i.name + ' class(interface)')]
 
 	# [/protected]
 	[if (not i.nestedClassifier->isEmpty())]
 	[i.nestedClassifier.genClassif()/]
 	[/if]
 	[if (not i.ownedOperation->isEmpty())]
-		[for (ops : Operation | i.ownedOperation)]
+		[for (ops : Operation | i.ownedOperation->reject(op | op.name = i.name))]
 	[ops.gen()/]
 		[/for]
 	[/if]
@@ -130,7 +198,7 @@ class [e.name/]:
 [p.ownedComment.genComment('#')/]
 
 [/if]
-self.[if (p.visibility = VisibilityKind::_private)]__[/if][p.name/] = [p.genValue()/]
+self.[if (p.visibility = VisibilityKind::_private)]__[/if][p.name/]: [p.type.name/] = [if ((not p.defaultValue.oclIsInvalid()) and (not p.defaultValue.oclIsUndefined()))][p.defaultValue.translate()/][else][p.genValue()/][/if]
 
 [/template]
 
@@ -144,20 +212,37 @@ self.[if (p.visibility = VisibilityKind::_private)]__[/if][p.name/] = [p.genValu
 	[o.bodyOperation()/]	
 [/template]
 
+
+
+[template public translate(v : ValueSpecification)]
+[if (v.oclIsTypeOf(InstanceValue))][v.oclAsType(InstanceValue).instance.classifier.name/]()
+[elseif (v.stringValue() = 'false')]False
+[elseif (v.stringValue() = 'true')]True
+[elseif (v.oclIsKindOf(LiteralNull))]None
+[else][v.stringValue()/][/if]
+[/template]
+
 [comment]
  Generate an operation header. If the operation visibility is set to
  private, '__' prefixes the operation name.
 [/comment]
 [template public header(o : Operation)]
-def [if (o.visibility = VisibilityKind::_private)]__[/if][o.name/](self[for (param : Parameter | o.ownedParameter->excluding(o.getReturnResult())) before (', ') separator(', ')][param.name/][/for]):
+[if (o.isAbstract)]@abstractmethod[/if]
+[if (o.isStatic)]@classmethod[/if]
+def [if (o.visibility = VisibilityKind::_private)]__[/if][if (o.class.name = o.name)]__init__[else][o.name/][/if](self[for (param : Parameter | o.ownedParameter->excluding(o.getReturnResult())) before (', ') separator(', ')][param.name/][if (o.class.name = o.name)][let correspondingProperty : Property = o.class.attribute->select(name = param.name)->first()][if (not correspondingProperty.defaultValue.oclIsInvalid())] = [correspondingProperty.defaultValue.translate()/][/if][/let][/if][/for]):
 [/template]
 
 [template public bodyOperation(o : Operation)]
-# [protected ('protected zone for ' + o.name + ' function body')]
-[if (o.getReturnResult() <> null and o.getReturnResult().type <> null)]
+[if (o.isAbstract)]raise NotImplementedError
+[elseif (not o.method->isEmpty())]
+[let behaviors : Set(FunctionBehavior) = o.method]
+[for (behavior : FunctionBehavior | behaviors->select(b | b->one(language->first() = 'Python')))][behavior._body->first()/][/for]
+[/let]
+[elseif (o.getReturnResult() <> null and o.getReturnResult().type <> null)]
 return [o.getReturnResult().genValue()/]
 [else]raise NotImplementedError
 [/if]
+# [protected ('protected zone for ' + o.name + ' function body')]
 # [/protected]
 [/template]
 
@@ -172,23 +257,25 @@ return [o.getReturnResult().genValue()/]
  Generate single values for methods and attributes initialization.
 [/comment]
 [template public genSingleValue(t : Type) ? (not t.oclIsUndefined()) post (trim())]
-[if (t.name = 'String')]""
-[elseif (t.name = 'UnlimitedNatural')]0L
-[elseif (t.name = 'Double')]0.
-[elseif (t.name = 'Real')]0.
-[elseif (t.name = 'Float')]0.
-[elseif (t.name = 'Long')]0L
-[elseif (t.name = 'Integer')]0
-[elseif (t.name = 'Short')]0
-[elseif (t.name = 'Byte')]0x0
-[elseif (t.name = 'ByteArray')]['['/]]
-[elseif (t.name = 'Boolean')]False
-[elseif (t.name = 'Date')]datetime()
-[elseif (t.name = 'Char')]''
+[if (t.name = 'str')]""
+[elseif (t.name = 'unlimitedNatural')]0L
+[elseif (t.name = 'double')]0.
+[elseif (t.name = 'real')]0.
+[elseif (t.name = 'float')]0.
+[elseif (t.name = 'long')]0L
+[elseif (t.name = 'int')]0
+[elseif (t.name = 'short')]0
+[elseif (t.name = 'byte')]0x0
+[elseif (t.name = 'array')]['['/]]
+[elseif (t.name = 'boolean')]False
+[elseif (t.name = 'date')]datetime()
+[elseif (t.name = 'char')]''
+[elseif (t.name = 'List')]['[]'/]
 [elseif (t.oclIsKindOf(Enumeration))][if (not t.oclAsType(Enumeration).ownedLiteral->isEmpty())][t.name/].[t.oclAsType(Enumeration).ownedLiteral->at(1).name/][else]None[/if]
-[elseif (t.oclIsKindOf(Classifier))]None
+[elseif (t.oclIsKindOf(Classifier))][t.name/]()
 [else]None[/if]
 [/template]
+
 
 [template public genComment(c : Comment, prefix : String)]
 [prefix/][c.genBody(prefix).replaceAll('\n','\n' + prefix + ' ')/]
