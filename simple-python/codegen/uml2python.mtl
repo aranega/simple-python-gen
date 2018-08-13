@@ -20,17 +20,15 @@
 [for (e : NamedElement | nonPrimitiveClasses->union(nonPrimitiveInstances)->asOrderedSet()) before('__all__ = [') separator(', ') after(']')]
 "[e.name/]"[/for]
 
-[comment]
-[for (e : Classifier | nonPrimitiveClasses)]
-from [e.qualifiedName.replaceAll('::', '.')/] import [e.name/]
-[/for]
-[for (instance : InstanceSpecification | nonPrimitiveInstances)]
-import [instance.classifier.qualifiedName.replaceAll('::', '.')/]
-[/for]
-[/comment]
 # [protected ('-> additional imports for ' + m.name + ' package')]
 
 # [/protected]
+[for (e : Classifier | nonPrimitiveClasses->asOrderedSet())]
+from [e.qualifiedName.replaceAll('::', '.')/] import [e.name/]
+[/for]
+[for (instance : InstanceSpecification | nonPrimitiveInstances->asOrderedSet())]
+import [instance.classifier.qualifiedName.replaceAll('::', '.')/]
+[/for]
 
 [for (instance : InstanceSpecification | nonPrimitiveInstances->asOrderedSet())]
 [instance.name/] = [instance.classifier.qualifiedName.replaceAll('::', '.')/]()
