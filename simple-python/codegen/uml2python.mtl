@@ -17,7 +17,7 @@
 [/if]
 [let nonPrimitiveClasses : Set(Classifier) = m.packagedElement->union(m.importedMember)->filter(Classifier)->reject(oclIsKindOf(Association))->reject(oclIsKindOf(PrimitiveType))]
 [let nonPrimitiveInstances : Set(InstanceSpecification) = m.packagedElement->union(m.importedMember)->filter(InstanceSpecification)]
-[for (e : NamedElement | nonPrimitiveClasses->union(nonPrimitiveInstances)) before('__all__ = [') separator(', ') after(']')]
+[for (e : NamedElement | nonPrimitiveClasses->union(nonPrimitiveInstances)->asOrderedSet()) before('__all__ = [') separator(', ') after(']')]
 "[e.name/]"[/for]
 
 [comment]
@@ -32,7 +32,7 @@ import [instance.classifier.qualifiedName.replaceAll('::', '.')/]
 
 # [/protected]
 
-[for (instance : InstanceSpecification | nonPrimitiveInstances)]
+[for (instance : InstanceSpecification | nonPrimitiveInstances->asOrderedSet())]
 [instance.name/] = [instance.classifier.qualifiedName.replaceAll('::', '.')/]()
 [/for]
 [/let]
@@ -46,7 +46,7 @@ import [instance.classifier.qualifiedName.replaceAll('::', '.')/]
  * This template generates a package content (one class per file)
  */]
 [template public genPackageContent(m : Package)]
-[for (e : Classifier | m.ownedElement->filter(Classifier)->reject(oclIsKindOf(Association)))]
+[for (e : Classifier | m.ownedElement->filter(Classifier)->reject(oclIsKindOf(Association))->asOrderedSet())]
 [file(e.qualifiedName.replaceAll('::', '/') + '.py', false, 'UTF-8')]
 [comment Dummy and very simple import management (misses the extern module imports) /]
 [if (not m.allOwnedElements()->filter(TypedElement)->select(type <> null and type.name <> null and type.name = 'Date')->isEmpty())]
@@ -65,11 +65,11 @@ from datetime import datetime
 [template public genClassif(e : Classifier)/]
 [template public genClassif(d : DataType)]
 [let inherited : Set(Classifier) = d.parents()]
-[for (inheritedNonPrimitiveClass : Classifier | inherited->reject(oclIsKindOf(PrimitiveType)))]
+[for (inheritedNonPrimitiveClass : Classifier | inherited->reject(oclIsKindOf(PrimitiveType))->asOrderedSet())]
 from [inheritedNonPrimitiveClass.qualifiedName.replaceAll('::', '.')/] import [inheritedNonPrimitiveClass.name/]
 [/for]
 [let nonPrimitiveAttributes : OrderedSet(Property) = d.attribute->reject(oclIsKindOf(PrimitiveType))->reject(type.qualifiedName = d.qualifiedName)]
-[for (attribute : Property | nonPrimitiveAttributes)]from [attribute.type.qualifiedName.replaceAll('::', '.')/] import [attribute.type.name/]
+[for (attribute : Property | nonPrimitiveAttributes->asOrderedSet())]from [attribute.type.qualifiedName.replaceAll('::', '.')/] import [attribute.type.name/]
 [/for][/let]
 # [protected ('-> additional imports for ' + d.name + ' datatype')]
 
@@ -93,18 +93,18 @@ class [d.name/]([if (not inherited->isEmpty())][for (cl : Classifier | inherited
 [/template]
 [template public genClassif(c : Class)]
 [let inherited : Bag(Classifier) = c.superClass->union(c.interfaceRealization.contract)]
-[for (inheritedNonPrimitiveClass : Classifier | inherited->reject(oclIsKindOf(PrimitiveType)))]
+[for (inheritedNonPrimitiveClass : Classifier | inherited->reject(oclIsKindOf(PrimitiveType))->asOrderedSet())]
 from [inheritedNonPrimitiveClass.qualifiedName.replaceAll('::', '.')/] import [inheritedNonPrimitiveClass.name/]
 [/for]
 [let nonPrimitiveAttributes : OrderedSet(Property) = c.attribute->reject(oclIsKindOf(PrimitiveType))->reject(type.qualifiedName = c.qualifiedName)]
-[for (attribute : Property | nonPrimitiveAttributes)]from [attribute.type.qualifiedName.replaceAll('::', '.')/] import [attribute.type.name/]
+[for (attribute : Property | nonPrimitiveAttributes->asOrderedSet())]from [attribute.type.qualifiedName.replaceAll('::', '.')/] import [attribute.type.name/]
 [/for][/let]
 # [protected ('-> additional imports for ' + c.name + ' class')]
 
 # [/protected]
 
 
-class [c.name/]([if (not inherited->isEmpty())][for (cl : Classifier | inherited) separator(', ')][cl.name/][/for][else]object[/if]):
+class [c.name/]([if (not inherited->isEmpty())][for (cl : Classifier | inherited->asOrderedSet()) separator(', ')][cl.name/][/for][else]object[/if]):
 	[if (not c.ownedComment->isEmpty())]
 	"""
 	[c.ownedComment.genComment(' ')/]
@@ -128,7 +128,7 @@ class [c.name/]([if (not inherited->isEmpty())][for (cl : Classifier | inherited
 	[c.nestedClassifier.genClassif()/]
 	[/if]
 	[if (not c.ownedOperation->isEmpty())]
-		[for (ops : Operation | c.ownedOperation->reject(op | op.name = c.name))]
+		[for (ops : Operation | c.ownedOperation->reject(op | op.name = c.name)->asOrderedSet())]
 	[ops.gen()/]
 		[/for]
 	[/if]
@@ -140,13 +140,13 @@ class [c.name/]([if (not inherited->isEmpty())][for (cl : Classifier | inherited
 
 [template public genClassif(i : Interface)]
 [let inherited : Bag(Classifier) = i.generalization.general]
-[for (inheritedNonPrimitiveClass : Classifier | inherited->reject(oclIsKindOf(PrimitiveType)))]
+[for (inheritedNonPrimitiveClass : Classifier | inherited->reject(oclIsKindOf(PrimitiveType))->asOrderedSet())]
 from [inheritedNonPrimitiveClass.qualifiedName.replaceAll('::', '.')/] import [inheritedNonPrimitiveClass.name/]
 [/for]
 # [protected ('-> additional imports for ' + i.name + ' interface')]
 
 # [/protected]
-class [i.name/]([if (not inherited->isEmpty())][for (cl : Classifier | inherited) separator(', ')][cl.name/][/for][else]object[/if]):
+class [i.name/]([if (not inherited->isEmpty())][for (cl : Classifier | inherited->asOrderedSet()) separator(', ')][cl.name/][/for][else]object[/if]):
 	[if (not i.ownedComment->isEmpty())]
 	"""
 	[i.ownedComment.genComment(' ')/]
@@ -167,7 +167,7 @@ class [i.name/]([if (not inherited->isEmpty())][for (cl : Classifier | inherited
 	[i.nestedClassifier.genClassif()/]
 	[/if]
 	[if (not i.ownedOperation->isEmpty())]
-		[for (ops : Operation | i.ownedOperation->reject(op | op.name = i.name))]
+		[for (ops : Operation | i.ownedOperation->reject(op | op.name = i.name)->asOrderedSet())]
 	[ops.gen()/]
 		[/for]
 	[/if]
@@ -189,7 +189,7 @@ class [e.name/]:
 	"""
 	[/if]
 	[if (not e.ownedLiteral->isEmpty())]
-	[for (lit : EnumerationLiteral | e.ownedLiteral) separator(', ')][lit.name/][/for] = range([e.ownedLiteral->size()/])
+	[for (lit : EnumerationLiteral | e.ownedLiteral->asOrderedSet()) separator(', ')][lit.name/][/for] = range([e.ownedLiteral->size()/])
 	[/if]
 [/template]
 
@@ -236,7 +236,7 @@ def [if (o.visibility = VisibilityKind::_private)]__[/if][if (o.class.name = o.n
 [if (o.isAbstract)]raise NotImplementedError
 [elseif (not o.method->isEmpty())]
 [let behaviors : Set(FunctionBehavior) = o.method]
-[for (behavior : FunctionBehavior | behaviors->select(b | b->one(language->first() = 'Python')))][behavior._body->first()/][/for]
+[for (behavior : FunctionBehavior | behaviors->select(b | b->one(language->first() = 'Python'))->asOrderedSet())][behavior._body->first()/][/for]
 [/let]
 [elseif (o.getReturnResult() <> null and o.getReturnResult().type <> null)]
 return [o.getReturnResult().genValue()/]
