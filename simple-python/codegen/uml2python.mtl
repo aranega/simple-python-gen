@@ -15,14 +15,14 @@
 """
 
 [/if]
+# [protected ('-> additional imports for ' + m.name + ' package')]
+
+# [/protected]
 [let nonPrimitiveClasses : Set(Classifier) = m.packagedElement->union(m.importedMember)->filter(Classifier)->reject(oclIsKindOf(Association))->reject(oclIsKindOf(PrimitiveType))]
 [let nonPrimitiveInstances : Set(InstanceSpecification) = m.packagedElement->union(m.importedMember)->filter(InstanceSpecification)]
 [for (e : NamedElement | nonPrimitiveClasses->union(nonPrimitiveInstances)->asOrderedSet()) before('__all__ = [') separator(', ') after(']')]
 "[e.name/]"[/for]
 
-# [protected ('-> additional imports for ' + m.name + ' package')]
-
-# [/protected]
 [for (e : Classifier | nonPrimitiveClasses->asOrderedSet())]
 from [e.qualifiedName.replaceAll('::', '.')/] import [e.name/]
 [/for]
@@ -46,6 +46,9 @@ import [instance.classifier.qualifiedName.replaceAll('::', '.')/]
 [template public genPackageContent(m : Package)]
 [for (e : Classifier | m.ownedElement->filter(Classifier)->reject(oclIsKindOf(Association))->asOrderedSet())]
 [file(e.qualifiedName.replaceAll('::', '/') + '.py', false, 'UTF-8')]
+# [protected ('-> additional imports for ' + e.name)]
+
+# [/protected]
 [comment Dummy and very simple import management (misses the extern module imports) /]
 [if (not m.allOwnedElements()->filter(TypedElement)->select(type <> null and type.name <> null and type.name = 'Date')->isEmpty())]
 from datetime import datetime
@@ -69,9 +72,6 @@ from [inheritedNonPrimitiveClass.qualifiedName.replaceAll('::', '.')/] import [i
 [let nonPrimitiveAttributes : OrderedSet(Property) = d.attribute->reject(oclIsKindOf(PrimitiveType))->reject(type.qualifiedName = d.qualifiedName)]
 [for (attribute : Property | nonPrimitiveAttributes->asOrderedSet())]from [attribute.type.qualifiedName.replaceAll('::', '.')/] import [attribute.type.name/]
 [/for][/let]
-# [protected ('-> additional imports for ' + d.name + ' datatype')]
-
-# [/protected]
 class [d.name/]([if (not inherited->isEmpty())][for (cl : Classifier | inherited) separator(', ')][cl.name/][/for][else]object[/if]):
 [/let]
 	[if (not d.ownedComment->isEmpty())]
@@ -97,9 +97,6 @@ from [inheritedNonPrimitiveClass.qualifiedName.replaceAll('::', '.')/] import [i
 [let nonPrimitiveAttributes : OrderedSet(Property) = c.attribute->reject(oclIsKindOf(PrimitiveType))->reject(type.qualifiedName = c.qualifiedName)]
 [for (attribute : Property | nonPrimitiveAttributes->asOrderedSet())]from [attribute.type.qualifiedName.replaceAll('::', '.')/] import [attribute.type.name/]
 [/for][/let]
-# [protected ('-> additional imports for ' + c.name + ' class')]
-
-# [/protected]
 
 
 class [c.name/]([if (not inherited->isEmpty())][for (cl : Classifier | inherited->asOrderedSet()) separator(', ')][cl.name/][/for][else]object[/if]):
@@ -141,9 +138,6 @@ class [c.name/]([if (not inherited->isEmpty())][for (cl : Classifier | inherited
 [for (inheritedNonPrimitiveClass : Classifier | inherited->reject(oclIsKindOf(PrimitiveType))->asOrderedSet())]
 from [inheritedNonPrimitiveClass.qualifiedName.replaceAll('::', '.')/] import [inheritedNonPrimitiveClass.name/]
 [/for]
-# [protected ('-> additional imports for ' + i.name + ' interface')]
-
-# [/protected]
 class [i.name/]([if (not inherited->isEmpty())][for (cl : Classifier | inherited->asOrderedSet()) separator(', ')][cl.name/][/for][else]object[/if]):
 	[if (not i.ownedComment->isEmpty())]
 	"""
