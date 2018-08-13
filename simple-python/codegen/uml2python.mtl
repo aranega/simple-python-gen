@@ -221,7 +221,7 @@ self.[if (p.visibility = VisibilityKind::_private)]__[/if][p.name/]: [p.type.nam
 [template public header(o : Operation)]
 [if (o.isAbstract)]@abstractmethod[/if]
 [if (o.isStatic)]@classmethod[/if]
-def [if (o.visibility = VisibilityKind::_private)]__[/if][if (o.class.name = o.name)]__init__[else][o.name/][/if](self[for (param : Parameter | o.ownedParameter->excluding(o.getReturnResult())) before (', ') separator(', ')][param.name/][if (o.class.name = o.name)][let correspondingProperty : Property = o.class.attribute->select(name = param.name)->first()][if (not correspondingProperty.defaultValue.oclIsInvalid())] = [correspondingProperty.defaultValue.translate()/][/if][/let][/if][/for]):
+def [if (o.visibility = VisibilityKind::_private)]__[/if][if (o.class.name = o.name)]__init__[else][o.name/][/if]([if (not o.isStatic)]self[/if][for (param : Parameter | o.ownedParameter->excluding(o.getReturnResult())) separator(', ')][param.name/][if (o.class.name = o.name)][let correspondingProperty : Property = o.class.attribute->select(name = param.name)->first()][if (not correspondingProperty.defaultValue.oclIsInvalid())] = [correspondingProperty.defaultValue.translate()/][/if][/let][/if][/for]):
 [/template]
 
 [template public bodyOperation(o : Operation)]
