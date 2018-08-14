@@ -210,11 +210,7 @@ self.[if (p.visibility = VisibilityKind::_private)]__[/if][p.name/]: [p.type.nam
 
 
 [template public translate(v : ValueSpecification)]
-[if (v.oclIsTypeOf(InstanceValue))][v.oclAsType(InstanceValue).instance.classifier.name/]()
-[elseif (v.stringValue() = 'false')]False
-[elseif (v.stringValue() = 'true')]True
-[elseif (v.oclIsKindOf(LiteralNull))]None
-[else][v.stringValue()/][/if]
+[if (v.oclIsTypeOf(InstanceValue))][v.oclAsType(InstanceValue).instance.classifier.name/]()[elseif (v.stringValue() = 'false')]False[elseif (v.stringValue() = 'true')]True[elseif (v.oclIsKindOf(LiteralNull))]None[else][v.stringValue()/][/if]
 [/template]
 
 [comment]
