@@ -89,7 +89,7 @@ class [d.name/]([if (not inherited->isEmpty())][for (cl : Classifier | inherited
 
 		# [/protected]
 	# [protected ('-> properties/constructors for ' + d.name + ' class')]
-	
+
 	# [/protected]
 [/template]
 [template public genClassif(c : Class)]
@@ -198,13 +198,14 @@ self.[if (p.visibility = VisibilityKind::_private)]__[/if][p.name/]: [p.type.nam
 [/template]
 
 [template public gen(o : Operation)]
+
 [o.header()/]
 	[if (not o.ownedComment->isEmpty())]
 	"""
 	[o.ownedComment.genComment(' ')/]
 	"""
 	[/if]
-	[o.bodyOperation()/]	
+	[o.bodyOperation()/]
 [/template]
 
 
@@ -218,8 +219,9 @@ self.[if (p.visibility = VisibilityKind::_private)]__[/if][p.name/]: [p.type.nam
  private, '__' prefixes the operation name.
 [/comment]
 [template public header(o : Operation)]
-[if (o.isAbstract)]@abstractmethod[/if]
-[if (o.isStatic)]@classmethod[/if]
+[if (o.isAbstract)]@abstractmethod
+[/if][if (o.isStatic)]@classmethod
+[/if]
 def [if (o.visibility = VisibilityKind::_private)]__[/if][if (o.class.name = o.name)]__init__[else][o.name/][/if]([if (not o.isStatic)]self[if (not o.ownedParameter->excluding(o.getReturnResult())->isEmpty())], [/if][/if][for (param : Parameter | o.ownedParameter->excluding(o.getReturnResult())) separator(', ')][param.name/][if (o.class.name = o.name)][let correspondingProperty : Property = o.class.attribute->select(name = param.name)->first()][if (not correspondingProperty.defaultValue.oclIsInvalid())] = [correspondingProperty.defaultValue.translate()/][/if][/let][/if][/for]):
 [/template]
 
