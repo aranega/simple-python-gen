@@ -49,7 +49,7 @@ import [instance.classifier.qualifiedName.replaceAll('::', '.')/]
 # [protected ('-> additional imports for ' + e.name)]
 
 # [/protected]
-[for (u : Usage | m.packagedElement->filter(Usage)->select(match | match.oclAsType(Usage).client->includes(e))->asOrderedSet())]
+[for (u : Dependency | m.packagedElement->filter(Dependency)->select(match | match.oclAsType(Dependency).client->includes(e))->asOrderedSet())]
 from [u.supplier.qualifiedName.replaceAll('::', '.')/] import [u.supplier.name/]
 [/for]
 [comment Dummy and very simple import management (misses the extern module imports) /]
