@@ -18,7 +18,7 @@
 # [protected ('-> additional imports for ' + m.name + ' package')]
 
 # [/protected]
-[let nonPrimitiveClasses : Set(Classifier) = m.packagedElement->union(m.importedMember)->filter(Classifier)->reject(oclIsKindOf(Association))->reject(oclIsKindOf(PrimitiveType))]
+[let nonPrimitiveClasses : Set(Classifier) = m.packagedElement->union(m.importedMember)->filter(Classifier)->reject(oclIsKindOf(Association) or oclIsKindOf(PrimitiveType))]
 [let nonPrimitiveInstances : Set(InstanceSpecification) = m.packagedElement->union(m.importedMember)->filter(InstanceSpecification)]
 [for (e : NamedElement | nonPrimitiveClasses->union(nonPrimitiveInstances)->sortedBy(qualifiedName)) before('__all__ = [') separator(', ') after(']')]
 "[e.name/]"[/for]
@@ -193,7 +193,7 @@ class [e.name/]:
 [p.ownedComment.genComment('#')/]
 
 [/if]
-self.[if (p.visibility = VisibilityKind::_private)]__[/if][p.name/]: [p.type.name/] = [if ((not p.defaultValue.oclIsInvalid()) and (not p.defaultValue.oclIsUndefined()))][p.defaultValue.translate()/][else][p.genValue()/][/if]
+self.[if (p.visibility = VisibilityKind::_private)]__[/if][p.name/]: [p.type.name/][if ((not p.defaultValue.oclIsInvalid()) and (not p.defaultValue.oclIsUndefined()))] = [p.defaultValue.translate()/][/if]
 
 [/template]
 
@@ -214,9 +214,33 @@ self.[if (p.visibility = VisibilityKind::_private)]__[/if][p.name/]: [p.type.nam
 
 
 [template public translate(v : ValueSpecification)]
-[if (v.oclIsTypeOf(InstanceValue))][v.oclAsType(InstanceValue).instance.classifier.name/]()[elseif (v.stringValue() = 'false')]False[elseif (v.stringValue() = 'true')]True[elseif (v.oclIsKindOf(LiteralNull))]None[else][v.stringValue()/][/if]
+[if (v.oclIsTypeOf(InstanceValue) or v.oclIsTypeOf(LiteralNull) or v.oclIsTypeOf(LiteralInteger) or v.oclIsTypeOf(LiteralReal) or v.oclIsTypeOf(LiteralBoolean))]
+[v.translate()/]
+[else]
+[v.stringValue()/]
+[/if]
 [/template]
 
+[template public translate(v : InstanceValue)]
+[if (not v.type.qualifiedName.oclIsUndefined())][v.type.qualifiedName.replace('::', '.')/]()
+[/if]
+[/template]
+
+[template public translate(ln : LiteralNull)]
+None
+[/template]
+
+[template public translate(v : LiteralInteger)]
+[v.value/]
+[/template]
+
+[template public translate(v : LiteralReal)]
+[v.value/]
+[/template]
+
+[template public translate(v : LiteralBoolean)]
+[if (not v.value.oclIsUndefined())]True[else]False[/if]
+[/template]
 [comment]
  Generate an operation header. If the operation visibility is set to
  private, '__' prefixes the operation name.
@@ -225,7 +249,7 @@ self.[if (p.visibility = VisibilityKind::_private)]__[/if][p.name/]: [p.type.nam
 [if (o.isAbstract)]@abstractmethod
 [/if][if (o.isStatic)]@classmethod
 [/if]
-def [if (o.visibility = VisibilityKind::_private)]__[/if][if (o.class.name = o.name)]__init__[else][o.name/][/if]([if (not o.isStatic)]self[if (not o.ownedParameter->excluding(o.getReturnResult())->isEmpty())], [/if][/if][for (param : Parameter | o.ownedParameter->excluding(o.getReturnResult())) separator(', ')][param.name/][if (o.class.name = o.name)][let correspondingProperty : Property = o.class.attribute->select(name = param.name)->first()][if (not correspondingProperty.defaultValue.oclIsInvalid())] = [correspondingProperty.defaultValue.translate()/][/if][/let][/if][/for]):
+def [if (o.visibility = VisibilityKind::_private)]__[/if][if (o.class.name = o.name)]__init__[else][o.name/][/if]([if (not o.isStatic)]self[if (not o.ownedParameter->excluding(o.getReturnResult())->isEmpty())], [/if][/if][for (param : Parameter | o.ownedParameter->excluding(o.getReturnResult())) separator(', ')][param.name/][if ((not param.defaultValue.oclIsUndefined()) and (not param.defaultValue.oclIsInvalid()))] = [param.defaultValue.translate()/][/if][/for]):
 [/template]
 
 [template public bodyOperation(o : Operation)]
@@ -266,7 +290,6 @@ return [o.getReturnResult().genValue()/]
 [elseif (t.name = 'char')]''
 [elseif (t.name = 'List')]['[]'/]
 [elseif (t.oclIsKindOf(Enumeration))][if (not t.oclAsType(Enumeration).ownedLiteral->isEmpty())][t.name/].[t.oclAsType(Enumeration).ownedLiteral->at(1).name/][else]None[/if]
-[elseif (t.oclIsKindOf(Classifier))][t.name/]()
 [else]None[/if]
 [/template]
 
