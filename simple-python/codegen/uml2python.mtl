@@ -44,7 +44,7 @@ import [instance.classifier.qualifiedName.replaceAll('::', '.')/]
  * This template generates a package content (one class per file)
  */]
 [template public genPackageContent(m : Package)]
-[for (e : Classifier | m.ownedElement->filter(Classifier)->reject(oclIsKindOf(Association))->sortedBy(qualifiedName))]
+[for (e : Classifier | m.ownedElement->filter(Classifier)->reject(oclIsKindOf(Association)))]
 [file(e.qualifiedName.replaceAll('::', '/') + '.py', false, 'UTF-8')]
 # [protected ('-> additional imports for ' + e.name)]
 
@@ -126,7 +126,7 @@ class [c.name/]([if (not inherited->isEmpty())][for (cl : Classifier | inherited
 	[c.nestedClassifier.genClassif()/]
 	[/if]
 	[if (not c.ownedOperation->isEmpty())]
-		[for (ops : Operation | c.ownedOperation->reject(op | op.name = c.name)->sortedBy(qualifiedName))]
+		[for (ops : Operation | c.ownedOperation->reject(op | op.name = c.name))]
 	[ops.gen()/]
 		[/for]
 	[/if]
@@ -162,7 +162,7 @@ class [i.name/]([if (not inherited->isEmpty())][for (cl : Classifier | inherited
 	[i.nestedClassifier.genClassif()/]
 	[/if]
 	[if (not i.ownedOperation->isEmpty())]
-		[for (ops : Operation | i.ownedOperation->reject(op | op.name = i.name)->sortedBy(qualifiedName))]
+		[for (ops : Operation | i.ownedOperation->reject(op | op.name = i.name))]
 	[ops.gen()/]
 		[/for]
 	[/if]
@@ -184,7 +184,7 @@ class [e.name/]:
 	"""
 	[/if]
 	[if (not e.ownedLiteral->isEmpty())]
-	[for (lit : EnumerationLiteral | e.ownedLiteral->sortedBy(qualifiedName)) separator(', ')][lit.name/][/for] = range([e.ownedLiteral->size()/])
+	[for (lit : EnumerationLiteral | e.ownedLiteral) separator(', ')][lit.name/][/for] = range([e.ownedLiteral->size()/])
 	[/if]
 [/template]
 
@@ -232,7 +232,7 @@ def [if (o.visibility = VisibilityKind::_private)]__[/if][if (o.class.name = o.n
 [if (o.isAbstract)]raise NotImplementedError
 [elseif (not o.method->isEmpty())]
 [let behaviors : Set(FunctionBehavior) = o.method]
-[for (behavior : FunctionBehavior | behaviors->select(b | b->one(language->first() = 'Python'))->sortedBy(qualifiedName))][behavior._body->first()/][/for]
+[for (behavior : FunctionBehavior | behaviors->select(b | b->one(language->first() = 'Python')))][behavior._body->first()/][/for]
 [/let]
 [elseif (o.getReturnResult() <> null and o.getReturnResult().type <> null)]
 return [o.getReturnResult().genValue()/]
