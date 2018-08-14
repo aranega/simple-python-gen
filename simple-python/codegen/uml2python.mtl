@@ -205,6 +205,9 @@ self.[if (p.visibility = VisibilityKind::_private)]__[/if][p.name/]: [p.type.nam
 	[o.ownedComment.genComment(' ')/]
 	"""
 	[/if]
+	# [protected ('protected zone for ' + o.name + ' function body')]
+
+	# [/protected]
 	[o.bodyOperation()/]
 [/template]
 
@@ -235,8 +238,6 @@ def [if (o.visibility = VisibilityKind::_private)]__[/if][if (o.class.name = o.n
 return [o.getReturnResult().genValue()/]
 [else]raise NotImplementedError
 [/if]
-# [protected ('protected zone for ' + o.name + ' function body')]
-# [/protected]
 [/template]
 
 [template public genValue(m : MultiplicityElement) post (trim())]
