@@ -214,7 +214,7 @@ self.[if (p.visibility = VisibilityKind::_private)]__[/if][p.name/]: [p.type.nam
 
 
 [template public translate(v : ValueSpecification)]
-[if (v.oclIsTypeOf(InstanceValue) or v.oclIsTypeOf(LiteralNull) or v.oclIsTypeOf(LiteralInteger) or v.oclIsTypeOf(LiteralReal) or v.oclIsTypeOf(LiteralBoolean))]
+[if (v.oclIsTypeOf(InstanceValue) or v.oclIsTypeOf(LiteralNull) or v.oclIsTypeOf(EnumerationLiteral) or v.oclIsTypeOf(LiteralInteger) or v.oclIsTypeOf(LiteralReal) or v.oclIsTypeOf(LiteralBoolean))]
 [v.translate()/]
 [else]
 [v.stringValue()/]
@@ -222,12 +222,17 @@ self.[if (p.visibility = VisibilityKind::_private)]__[/if][p.name/]: [p.type.nam
 [/template]
 
 [template public translate(v : InstanceValue)]
-[if (not v.type.qualifiedName.oclIsUndefined())][v.type.qualifiedName.replace('::', '.')/]()
+[if (not v.instance.qualifiedName.oclIsUndefined())][v.instance.classifier.name/].[v.instance.name.replaceAll('::', '.')/]
+[elseif (not v.type.qualifiedName.oclIsUndefined())][v.type.name.replaceAll('::', '.')/]()
 [/if]
 [/template]
 
 [template public translate(ln : LiteralNull)]
 None
+[/template]
+
+[template public translate(v : EnumerationLiteral)]
+[v.name/]
 [/template]
 
 [template public translate(v : LiteralInteger)]
