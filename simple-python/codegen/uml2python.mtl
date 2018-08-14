@@ -49,6 +49,9 @@ import [instance.classifier.qualifiedName.replaceAll('::', '.')/]
 # [protected ('-> additional imports for ' + e.name)]
 
 # [/protected]
+[for (u : Usage | m.packagedElement->filter(Usage)->select(match | match.oclAsType(Usage).client->includes(e))->asOrderedSet())]
+from [u.supplier.qualifiedName.replaceAll('::', '.')/] import [u.supplier.name/]
+[/for]
 [comment Dummy and very simple import management (misses the extern module imports) /]
 [if (not m.allOwnedElements()->filter(TypedElement)->select(type <> null and type.name <> null and type.name = 'Date')->isEmpty())]
 from datetime import datetime
