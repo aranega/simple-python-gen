@@ -244,7 +244,7 @@ None
 [/template]
 
 [template public translate(v : LiteralBoolean)]
-[if (not v.value.oclIsUndefined())]True[else]False[/if]
+[if (not v.value.oclIsUndefined() and v.booleanValue())]True[else]False[/if]
 [/template]
 [comment]
  Generate an operation header. If the operation visibility is set to
