@@ -254,7 +254,7 @@ None
 [if (o.isAbstract)]@abstractmethod
 [/if][if (o.isStatic)]@staticmethod
 [/if]
-def [if (o.visibility = VisibilityKind::_private)]__[/if][if (o.class.name = o.name)]__init__[else][o.name/][/if]([if (not o.isStatic)]self[if (not o.ownedParameter->excluding(o.getReturnResult())->isEmpty())], [/if][/if][for (param : Parameter | o.ownedParameter->excluding(o.getReturnResult())) separator(', ')][param.name/][if ((not param.defaultValue.oclIsUndefined()) and (not param.defaultValue.oclIsInvalid()))] = [param.defaultValue.translate()/][/if][/for]):
+def [if (o.visibility = VisibilityKind::_private)]__[/if][if (o.class.name = o.name)]__init__[else][o.name/][/if]([if (not o.isStatic)]self[if (not o.ownedParameter->excluding(o.getReturnResult())->isEmpty())], [/if][/if][for (param : Parameter | o.ownedParameter->excluding(o.getReturnResult())) separator(', ')][param.name/][if ((not param.defaultValue.oclIsUndefined()) and (not param.defaultValue.oclIsInvalid()))] = [param.defaultValue.translate()/][/if][/for]) [if (not o.getReturnResult().oclIsInvalid())]-> [o.getReturnResult().type.name/][/if]:
 [/template]
 
 [template public bodyOperation(o : Operation)]
