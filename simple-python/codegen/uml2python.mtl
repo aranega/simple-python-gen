@@ -49,6 +49,9 @@ import [instance.classifier.qualifiedName.replaceAll('::', '.')/]
 # [protected ('-> additional imports for ' + e.name)]
 
 # [/protected]
+[if (not m.packagedElement->select(isAbstract)->isEmpty())]
+from abc import ABCMeta, abstractmethod, abstractclassmethod, abstractstaticmethod
+[/if]
 [for (u : Dependency | m.packagedElement->filter(Dependency)->select(match | match.oclAsType(Dependency).client->includes(e))->sortedBy(qualifiedName))]
 from [u.supplier.qualifiedName.replaceAll('::', '.')/] import [u.supplier.name/]
 [/for]
@@ -102,7 +105,7 @@ from [inheritedNonPrimitiveClass.qualifiedName.replaceAll('::', '.')/] import [i
 [/for][/let]
 
 
-class [c.name/]([if (not inherited->isEmpty())][for (cl : Classifier | inherited->sortedBy(qualifiedName)) separator(', ')][cl.name/][/for][else]object[/if]):
+class [c.name/]([if (not inherited->isEmpty())][for (cl : Classifier | inherited->sortedBy(qualifiedName)) separator(', ')][cl.name/][/for][else]object[/if][if (not c.ownedOperation->select(isAbstract)->isEmpty())], metaclass=ABCMeta[/if]):
 	[if (not c.ownedComment->isEmpty())]
 	"""
 	[c.ownedComment.genComment(' ')/]
