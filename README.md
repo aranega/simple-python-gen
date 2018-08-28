@@ -28,6 +28,6 @@ Class diagrams contained in an UML project are used for python code generation. 
 | Instance Specification | Named instanciation without any further initialization |
 
 ## Comments ##
-- The generated `import` statements are [sorted](simple-python/codegen/uml2python.mtl#23) to avoid unintended differences during source code generation
+- The generated `import` and inheritance statements are [sorted](simple-python/codegen/uml2python.mtl#23) to avoid unintended differences during source code generation. This might interfere with Python's MRO.
 - Function Behavior language needs to be `Python` to be included
 - User Code areas are located to alter the respective behavior in the most flexible ways
